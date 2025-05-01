@@ -171,6 +171,12 @@ class Prompt(Cmd):
         vlan_id = input("Vlan ID?: ")
         cli.setmgmtvlan(vlan_id)
 
+    def onecmd(self, line):
+        """Prevent re-execution of the last command on empty input."""
+        if not line.strip():
+            return False  # Verhindert die Ausführung eines Befehls
+        return super().onecmd(line)
+
 
 prompt = Prompt()
 cli = None
