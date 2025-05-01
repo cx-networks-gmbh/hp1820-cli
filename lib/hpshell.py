@@ -95,6 +95,10 @@ class Prompt(Cmd):
             mode = input("tagged[t]/untagged[u]/exclude[e]?")
         cli.accessVlan(available_mode[mode], input("Interfaces(1-8), TRK1-4 (54-57)?"), input("Vlan id?"))
 
+    def do_vlanname(self, args):
+        """Set a name for a vlan."""
+        cli.setVlanName(input("Vlan id? "), input("Vlan name? "))
+
     def do_gencert(self, args):
         """Generate a new self-signed SSL certificate."""
         print("Generating a new cert...")

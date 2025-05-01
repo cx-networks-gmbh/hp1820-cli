@@ -193,6 +193,14 @@ class Cli:
             'b_form1_clicked': 'b_form1_dt_remove'
         }
         self._httpPost('del_vlan', post_data)
+    
+    def setVlanName(self, vlan_id, name):
+        post_data = {
+            'vlan': vlan_id,
+            'vlan_name': name,
+            'b_modal1_clicked': 'b_modal1_submit'
+        }
+        self._httpPost('set_vlan_name', post_data)
 
     # Generate https SSL certificate.
     def genCert(self):
@@ -486,6 +494,7 @@ URLS = {
     'port_statistic': '/htdocs/pages/base/port_summary_stats.lsp',
     'add_vlan': '/htdocs/pages/switching/vlan_status_modal.lsp',
     'del_vlan': '/htdocs/pages/switching/vlan_status.lsp',
+    'set_vlan_name': '/htdocs/pages/switching/vlan_status_edit_modal.lsp',
     'access_vlan': '/htdocs/pages/switching/vlan_per_port_modal.lsp',
     'set_port_status': '/htdocs/pages/base/port_summary_modal.lsp',
     'set_sysinfo': '/htdocs/pages/base/dashboard.lsp',
