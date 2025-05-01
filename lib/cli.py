@@ -174,6 +174,7 @@ class Cli:
         }
         self._httpPost('access_vlan', post_data)
 
+
     # @param example: 5-18 or 7 or 1,4,7
     def addVlan(self, vlan_id_str):
         post_data = {

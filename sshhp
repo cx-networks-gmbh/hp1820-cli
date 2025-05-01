@@ -8,7 +8,7 @@ from lib import hpshell
 def checkArgument():
     if len(sys.argv) != 2:
         print("http - Connect a switch through HTTP protocal")
-        print("Usage: http [user@]host")
+        print("Usage: sshp [user@]host")
         print("(If not specified, username is admin.)")
         sys.exit(0)
 
