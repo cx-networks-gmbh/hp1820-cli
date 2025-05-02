@@ -1,0 +1,22 @@
+---
+- name: Test Playbook
+  hosts: localhost
+  vars:
+    hostname: "192.168.1.1"
+    hpe1820__password: ""
+    hpe1820__username: "admin"
+  tasks:
+    - name: Ensure port 2 has two VLANs assigned and 3 none
+      hp-procurve:
+        port_vlans:
+          "2":
+            untagged: 2900
+            tagged:
+              - 295
+          "3":
+            untagged: null
+            tagged: []
+        host: "{{ hostname }}"
+        username: "{{ hpe1820__username | d(omit) }}"
+        password: "{{ hpe1820__password }}"
+      delegate_to: "localhost"

@@ -1,0 +1,17 @@
+{
+    "ANSIBLE_MODULE_ARGS": {
+        "port_vlans": {
+          "2": {
+            "untagged": 2900,
+            "tagged": [296]
+          },
+          "3": {
+            "untagged": "null",
+            "tagged": []
+          }
+        },
+        "host": "192.168.1.1",
+        "username": "admin",
+        "password": ""
+    }
+}
