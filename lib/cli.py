@@ -3,11 +3,24 @@ import json
 import time
 import re as regex
 from bs4 import BeautifulSoup
-import urllib.request, urllib.error, ssl
+import urllib.request
+import urllib.error
+import ssl
 from math import isnan
 import re
 import os
 import functools
+from enum import Enum
+
+
+class SpanningTreeModes(Enum):
+    enabled = 'enabled'
+    disabled = 'disabled'
+
+
+class SpanningTreeVersion(Enum):
+    ieee_802_1d = 'ieee_802_1d'
+    ieee_802_1w = 'ieee_802_1w'
 
 
 class Cli:
@@ -21,9 +34,11 @@ class Cli:
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
-        requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
+        requests.packages.urllib3.disable_warnings(
+            requests.packages.urllib3.exceptions.InsecureRequestWarning)
         try:
-            response = urllib.request.urlopen(url, timeout = TEST_CONNECTION_TIMEOUT, context = ctx)
+            response = urllib.request.urlopen(
+                url, timeout=TEST_CONNECTION_TIMEOUT, context=ctx)
         except urllib.error.URLError as err:
             print("Cannot connect %s : %s" % (url, err.reason))
             return False
@@ -46,7 +61,8 @@ class Cli:
                 $
             """, port_range_part, flags=re.VERBOSE)
             if not _re:
-                raise Exception(f"port_range_part has unknown format: {port_range_part}")
+                raise Exception(
+                    f"port_range_part has unknown format: {port_range_part}")
             matches = _re.groupdict()
             if matches['last_if'] is None:
                 matches['last_if'] = matches['first_if']
@@ -64,7 +80,8 @@ class Cli:
 
     def login(self, username, password):
         try:
-            raw_response = self._httpPost('login', {'username': username, 'password': password})
+            raw_response = self._httpPost(
+                'login', {'username': username, 'password': password})
             response = json.loads(raw_response)
         except requests.exceptions.ConnectionError:
             response = {'error': 'Connection error'}
@@ -83,15 +100,16 @@ class Cli:
         self.session.close()
         print('Session closed.')
 
-
     # show function
 
     def showPortStatus(self):
-        first_row = ['Interface', 'Admin Mode', 'Physical Type', 'Port Status', 'Physical Mode', 'Link Speed', 'MTU']
+        first_row = ['Interface', 'Admin Mode', 'Physical Type',
+                     'Port Status', 'Physical Mode', 'Link Speed', 'MTU']
         showStatus(self._httpGet('port_status'), first_row)
 
     def showPortChannel(self):
-        first_row = ['Interface', 'Name', 'Type', 'Admin Mode', 'Link Status', 'Members', 'Active Ports']
+        first_row = ['Interface', 'Name', 'Type', 'Admin Mode',
+                     'Link Status', 'Members', 'Active Ports']
         showStatus(self._httpGet('port_channel'), first_row)
 
     def showVlanStatus(self):
@@ -99,15 +117,26 @@ class Cli:
         showStatus(self._httpGet('vlan_status'), first_row)
 
     def showMacTable(self):
-        first_row = ['VLAN ID', 'MAC Address', 'Interface', 'Interface Index', 'Status']
-        showStatus(self._httpGet('mac_table'), first_row, ignore_first = False)
+        first_row = ['VLAN ID', 'MAC Address',
+                     'Interface', 'Interface Index', 'Status']
+        showStatus(self._httpGet('mac_table'), first_row, ignore_first=False)
 
     def showPortStatistic(self):
-        first_row = ['Int','RX w/o Err','RX with Err','RX Broadcast','TX w/o Err','TX with Err','Collision','TX PauseFrame','RX PauseFrame']
-        showStatus(self._httpGet('port_statistic'), first_row, ignore_first = False)
+        first_row = ['Int', 'RX w/o Err', 'RX with Err', 'RX Broadcast',
+                     'TX w/o Err', 'TX with Err', 'Collision', 'TX PauseFrame', 'RX PauseFrame']
+        showStatus(self._httpGet('port_statistic'),
+                   first_row, ignore_first=False)
 
     def showDashboard(self):
         printDashboard(self._httpGet('dashboard'))
+
+    def setVlanName(self, vlan_id, name):
+        post_data = {
+            'vlan': vlan_id,
+            'vlan_name': name,
+            'b_modal1_clicked': 'b_modal1_submit'
+        }
+        self._httpPost('set_vlan_name', post_data)
 
     def _set_vlan_port_in_variable(self, port_vlans, vlan, index, mode):
         vid = int(vlan[0])
@@ -133,31 +162,38 @@ class Cli:
 
     def get_interface_vlan_membership_change_actions(self, interface, port_vlans, desired_port_vlans):
         change_actions = []
-        vlan_vids = [int(vlan[0]) for vlan in self.getVlans() if len(vlan) == 3]
+        vlan_vids = [int(vlan[0])
+                     for vlan in self.getVlans() if len(vlan) == 3]
         if 'untagged' in desired_port_vlans and 'untagged' in port_vlans:
             if desired_port_vlans['untagged'] is None:
                 # The switch does not support that:
                 # > If you wish to exclude a port from the current VLAN
                 # > membership you must first make it a tagged/untagged member in
                 # > another VLAN.
-                change_actions.append(('accessVlan', 'exclude', interface, port_vlans['untagged']))
+                change_actions.append(
+                    ('accessVlan', 'exclude', interface, port_vlans['untagged']))
             elif port_vlans.get('untagged') != desired_port_vlans['untagged']:
                 if desired_port_vlans['untagged'] not in vlan_vids:
-                    change_actions.append(('addVlan', desired_port_vlans['untagged']))
-                change_actions.append(('accessVlan', 'untagged', interface, desired_port_vlans['untagged']))
+                    change_actions.append(
+                        ('addVlan', desired_port_vlans['untagged']))
+                change_actions.append(
+                    ('accessVlan', 'untagged', interface, desired_port_vlans['untagged']))
         if 'tagged' in desired_port_vlans:
             for desired_tagged_vlan in desired_port_vlans['tagged']:
                 if desired_tagged_vlan not in port_vlans.get('tagged', []):
                     if desired_tagged_vlan not in vlan_vids:
                         change_actions.append(('addVlan', desired_tagged_vlan))
-                    change_actions.append(('accessVlan', 'tagged', interface, desired_tagged_vlan))
+                    change_actions.append(
+                        ('accessVlan', 'tagged', interface, desired_tagged_vlan))
             for tagged_vlan in port_vlans.get('tagged', []):
                 if tagged_vlan not in desired_port_vlans['tagged']:
-                    change_actions.append(('accessVlan', 'exclude', interface, tagged_vlan))
+                    change_actions.append(
+                        ('accessVlan', 'exclude', interface, tagged_vlan))
         return change_actions
 
     def remove_unused_vlans(self, dry_run=False):
-        defined_vlan_vids = set([int(vlan[0]) for vlan in self.getVlans() if len(vlan) == 3])
+        defined_vlan_vids = set([int(vlan[0])
+                                for vlan in self.getVlans() if len(vlan) == 3])
         used_vlan_vids = set()
         for interface, port_vlans in self.get_interfaces_vlan_membership().items():
             used_vlan_vids.update(port_vlans.get('tagged', []))
@@ -167,7 +203,8 @@ class Cli:
         change_actions = []
         unused_vlan_vids = defined_vlan_vids.difference(used_vlan_vids)
         if len(unused_vlan_vids) > 0:
-            change_actions.append(('delVlan', ','.join([str(x) for x in unused_vlan_vids])))
+            change_actions.append(
+                ('delVlan', ','.join([str(x) for x in unused_vlan_vids])))
 
         if not dry_run and len(change_actions) > 0:
             for change_action in change_actions:
@@ -184,7 +221,8 @@ class Cli:
             if interface not in interfaces_vlan_membership:
                 interfaces_not_existing_on_switch.append(interface)
         if len(interfaces_not_existing_on_switch) > 0:
-            raise Exception(f"The switch does not have the following ports: {','.join(interfaces_not_existing_on_switch)}")
+            raise Exception(
+                f"The switch does not have the following ports: {','.join(interfaces_not_existing_on_switch)}")
         for interface, port_vlans in interfaces_vlan_membership.items():
             change_actions.extend(self.get_interface_vlan_membership_change_actions(
                 interface,
@@ -224,7 +262,8 @@ class Cli:
         return data
 
     def showVlanMembership(self):
-        first_row = ['VLAN ID', 'Tagged Ports', 'Untagged Ports', 'Exclude Participation']
+        first_row = ['VLAN ID', 'Tagged Ports',
+                     'Untagged Ports', 'Exclude Participation']
         printTable(first_row, self.getVlanMembership())
 
     # DEPRECATED: This method uses the same API as showDashboard()
@@ -237,7 +276,6 @@ class Cli:
                 (key, val) = (cols[0], cols[1])
                 if key.get_text() == "System Name":
                     return val.input['value']
-
 
     # set function
 
@@ -272,7 +310,7 @@ class Cli:
         }
         self._httpPost('set_sysinfo', post_data)
 
-    def setNetwork(self, mode, ip = '', subnet = '', gateway = '', mgmt_vlan = '1'):
+    def setNetwork(self, mode, ip='', subnet='', gateway='', mgmt_vlan='1'):
         required_data = {
             'protocol_type_sel[]': mode,  # static or dhcp
             'session_timeout': '5',
@@ -289,7 +327,8 @@ class Cli:
         post_data.update(required_data)
 
         if mode == "static":
-            ip_data = {'ip_addr': ip, 'subnet_mask': subnet, 'gateway_address': gateway}
+            ip_data = {'ip_addr': ip, 'subnet_mask': subnet,
+                       'gateway_address': gateway}
             post_data.update(ip_data)
 
         self._httpPost('set_network', post_data)
@@ -316,11 +355,12 @@ class Cli:
 
     def accessVlan(self, mode, interfaces, vlan_id):
         post_data = {
-            'part_tagg_sel[]': mode, # tagged, untagged, exclude
+            'part_tagg_sel[]': mode,  # tagged, untagged, exclude
             'vlan': vlan_id,
-            'intfStr': self._get_hpe_internal_interface_ids(interfaces), # 1-8, TRK1: 54, TRK2: 55 ...
+            # 1-8, TRK1: 54, TRK2: 55 ...
+            'intfStr': self._get_hpe_internal_interface_ids(interfaces),
             'part_exclude': 'yes',
-            'parentQStr': '?vlan=%s' % vlan_id, # looks like this doesn't matter
+            'parentQStr': '?vlan=%s' % vlan_id,  # looks like this doesn't matter
             'b_modal1_clicked': 'b_modal1_submit'
         }
         self._httpPost('access_vlan', post_data)
@@ -426,52 +466,52 @@ class Cli:
 
     def loopprotection(self):
         post_data = {
-            'loop_protection_sel[]':'enabled',
-            'transmission_time':'5',
-            'shutdown_time':'180',
-            'sorttable1_length':'10',
-            'b_form1_submit':'Apply',
-            'b_form1_clicked':'b_form1_submit'
+            'loop_protection_sel[]': 'enabled',
+            'transmission_time': '5',
+            'shutdown_time': '180',
+            'sorttable1_length': '10',
+            'b_form1_submit': 'Apply',
+            'b_form1_clicked': 'b_form1_submit'
         }
-        self._httpPost('loop_protectiona',post_data)
+        self._httpPost('loop_protectiona', post_data)
 
         post_data = {
-            'loop_protection_sel[]':'enabled',
-            'action_sel[]':'shutdown_port',
-            'tx_mode_sel[]':'enabled',
-            'intf':'all',
-            'b_modal1_clicked':'b_modal1_submit'
+            'loop_protection_sel[]': 'enabled',
+            'action_sel[]': 'shutdown_port',
+            'tx_mode_sel[]': 'enabled',
+            'intf': 'all',
+            'b_modal1_clicked': 'b_modal1_submit'
         }
-        self._httpPost('loop_protectionb',post_data)
+        self._httpPost('loop_protectionb', post_data)
 
     def setmgmtvlan(self, vlan_id):
         post_data = {
-            'protocol_type_sel[]':'dhcp',
-            'session_timeout':'5',
-            'mgmt_vlan_id_sel[]':vlan_id,
-            'mgmt_port_sel[]':'none',
-            'snmp_sel[]':'enabled',
-            'community_name':'public',
-            'b_form1_submit':'Apply',
-            'change_mvlan':'yes',
-            'change_mport':'no',
-            'b_form1_clicked':'b_form1_submit'
+            'protocol_type_sel[]': 'dhcp',
+            'session_timeout': '5',
+            'mgmt_vlan_id_sel[]': vlan_id,
+            'mgmt_port_sel[]': 'none',
+            'snmp_sel[]': 'enabled',
+            'community_name': 'public',
+            'b_form1_submit': 'Apply',
+            'change_mvlan': 'yes',
+            'change_mport': 'no',
+            'b_form1_clicked': 'b_form1_submit'
         }
-        self._httpPost('set_mgmt_vlan',post_data)
+        self._httpPost('set_mgmt_vlan', post_data)
 
         post_data = {
-            'protocol_type_sel[]':'dhcp',
-            'session_timeout':'5',
-            'mgmt_vlan_id_sel[]':vlan_id,
-            'mgmt_port_sel[]':'none',
-            'snmp_sel[]':'enabled',
-            'community_name':'public',
-            'b_form1_submit':'Apply',
-            'change_mvlan':'no',
-            'change_mport':'no',
-            'b_form1_clicked':'b_form1_submit'
+            'protocol_type_sel[]': 'dhcp',
+            'session_timeout': '5',
+            'mgmt_vlan_id_sel[]': vlan_id,
+            'mgmt_port_sel[]': 'none',
+            'snmp_sel[]': 'enabled',
+            'community_name': 'public',
+            'b_form1_submit': 'Apply',
+            'change_mvlan': 'no',
+            'change_mport': 'no',
+            'b_form1_clicked': 'b_form1_submit'
         }
-        self._httpPost('set_mgmt_vlan',post_data)
+        self._httpPost('set_mgmt_vlan', post_data)
 
     def downloadConfig(self, filepath):
         nowtime = int(1000 * time.time())
@@ -480,20 +520,22 @@ class Cli:
             'http_token': nowtime
         }
         response = self._httpPost('file_upload', post_data)
-        download_file = self._httpGet('file_download','?name=hp1820_8G.cfg&file=/mnt/download/hp1820_8G.cfg&token='+str(nowtime))
+        download_file = self._httpGet(
+            'file_download', '?name=hp1820_8G.cfg&file=/mnt/download/hp1820_8G.cfg&token='+str(nowtime))
         try:
-            f = open(filepath+'/hp1820_8G.cfg','w+')
+            f = open(filepath+'/hp1820_8G.cfg', 'w+')
             print('file downloaded to '+filepath+'/hp1820_8G.cfg')
             f.write(download_file)
         except PermissionError:
             print('permission denied.')
         except:
             print('error')
-        self._httpGet('file_download','?name=hp1820_8G.cfg&file=/mnt/download/hp1820_8G.cfg&token='+str(nowtime)+'&remove=true')
+        self._httpGet(
+            'file_download', '?name=hp1820_8G.cfg&file=/mnt/download/hp1820_8G.cfg&token='+str(nowtime)+'&remove=true')
 
     def setPortStatus(self, interface, status):
         post_data = {
-            'admin_mode_sel[]': status, # enabled, disabled
+            'admin_mode_sel[]': status,  # enabled, disabled
             'phys_mode_sel[]': '1',
             'port_desc': '',
             'intf': interface,
@@ -501,9 +543,23 @@ class Cli:
         }
         self._httpPost('set_port_status', post_data)
 
-    def setPortChannel(self, channel_id, interface_id_str, admin_mode, stp_mode, static_mode, clear = False):
+    def setSpanningTree(self, adminState=SpanningTreeModes, protocolVersion=SpanningTreeVersion, priority=32768):
+        post_data = {
+            'spanning_tree_sel[]': adminState.value,
+            'protocol_version_sel[]': protocolVersion.value,
+            'max_age': '20',
+            'forward_delay': '15',
+            'bridge_priority_sel[]': f'{priority}',
+            'sorttable1_length': '10',
+            'b_form1_submit': 'Apply',
+            'b_form1_clicked': 'b_form1_submit'
+        }
+        self._httpPost('set_spanning_tree', post_data)
+
+    def setPortChannel(self, channel_id, interface_id_str, admin_mode, stp_mode, static_mode, clear=False):
         interface_ids = parseIds(interface_id_str)
-        not_interface_ids = [i for i in range(1, 8 + 1) if i not in interface_ids]
+        not_interface_ids = [i for i in range(
+            1, 8 + 1) if i not in interface_ids]
         dstPortList = ''
         post_data = {
             'trunk_intf': str(53 + int(channel_id)),
@@ -556,13 +612,12 @@ class Cli:
             time.sleep(0.15)
             self._ping_ajax(str(handle), ipAddr)
 
-
     # private method
 
-    def _httpGet(self, operation, handle = ''):
+    def _httpGet(self, operation, handle=''):
         return httpRequest(self.session, 'GET', self._getUrl(operation)+handle)
 
-    def _httpPost(self, operation, post_data, timeout = 0):
+    def _httpPost(self, operation, post_data, timeout=0):
         return httpRequest(self.session, 'POST', self._getUrl(operation), post_data, None, timeout)
 
     def _httpPostFile(self, operation, post_data, files):
@@ -576,26 +631,27 @@ class Cli:
         res = self._httpGet('ping_ajax', handle_val)
         res = res.split('|')
         if res is not None:
-            handle = int(res[0]);
-            respip = res[1];
-            rtt = int(res[2]);
-            seq = int(res[3]);
-            resptype = int(res[4]);
-            operstatus = int(res[5]);
-            sessionstate = int(res[6]);
-            avgrtt = int(res[7]);
-            maxrtt = int(res[8]);
-            minrtt = int(res[9]);
-            probesent = int(res[10]);
-            proberesponse = int(res[11]);
-            probefail = int(res[12]);
+            handle = int(res[0])
+            respip = res[1]
+            rtt = int(res[2])
+            seq = int(res[3])
+            resptype = int(res[4])
+            operstatus = int(res[5])
+            sessionstate = int(res[6])
+            avgrtt = int(res[7])
+            maxrtt = int(res[8])
+            minrtt = int(res[9])
+            probesent = int(res[10])
+            proberesponse = int(res[11])
+            probefail = int(res[12])
 
             if (not isnan(handle)) and handle != 0:
                 results = ''
                 if respip != host_name_ipaddr and respip != '0.0.0.0':
                     results = 'Reply from ' + respip + ': Destination Port Unreachable.'
                 elif respip == host_name_ipaddr:
-                    results = 'Reply from ' + respip + ': icmp_seq=' + str(seq) + ' time=' + str(rtt) + ' usec.'
+                    results = 'Reply from ' + respip + ': icmp_seq=' + \
+                        str(seq) + ' time=' + str(rtt) + ' usec.'
                 else:
                     results = 'Request Timed Out.'
                 if probesent == self.count:
@@ -616,10 +672,14 @@ class Cli:
                         self.done = 1
                         percent = 0
                         if probesent != 0:
-                            percent = (probesent - proberesponse) * 100 / float(probesent)
-                            print('---' + host_name_ipaddr + ' ping statistics----')
-                            print(str(probesent) + ' packets transmitted, ' + str(proberesponse) + ' packets received, ' + str(percent) + '% packet loss')
-                            print('round-trip (msec) min/avg/max = ' + str(minrtt) + '/' + str(avgrtt) + '/' + str(maxrtt))
+                            percent = (probesent - proberesponse) * \
+                                100 / float(probesent)
+                            print('---' + host_name_ipaddr +
+                                  ' ping statistics----')
+                            print(str(probesent) + ' packets transmitted, ' + str(proberesponse) +
+                                  ' packets received, ' + str(percent) + '% packet loss')
+                            print('round-trip (msec) min/avg/max = ' +
+                                  str(minrtt) + '/' + str(avgrtt) + '/' + str(maxrtt))
                 self.probessent = probesent
                 self.seq = seq
 
@@ -648,6 +708,7 @@ URLS = {
     'set_timezone': '/htdocs/pages/base/timezone_cfg.lsp',
     'set_sntp': '/htdocs/pages/base/sntp_global_config.lsp',
     'set_account': '/htdocs/pages/base/user_accounts.lsp',
+    'set_spanning_tree': '/htdocs/pages/switching/stp_cfg.lsp',
     'cert_state': '/htdocs/lua/ajax/https_cert_stat_ajax.lua',
     'https_config': '/htdocs/pages/base/https_cfg.lsp',
     'ping': '/htdocs/pages/base/ping.lsp',
@@ -656,28 +717,30 @@ URLS = {
     'file_download': '/htdocs/pages/base/file_http_download.lsp',
     'dual_image': '/htdocs/pages/base/dual_image_cfg.lsp',
     'reboot': '/htdocs/lua/ajax/sys_reset_ajax.lua?reset=1',
-    'loop_protectiona':'/htdocs/pages/switching/loop_config.lsp',
-    'loop_protectionb':'/htdocs/pages/switching/loop_config_modal.lsp',
-    'set_mgmt_vlan':'/htdocs/pages/base/network_ipv4_cfg.lsp'
+    'loop_protectiona': '/htdocs/pages/switching/loop_config.lsp',
+    'loop_protectionb': '/htdocs/pages/switching/loop_config_modal.lsp',
+    'set_mgmt_vlan': '/htdocs/pages/base/network_ipv4_cfg.lsp'
 }
 
 PROTOCOL_DELIMETER = "://"
-TEST_CONNECTION_TIMEOUT = 5 # second
+TEST_CONNECTION_TIMEOUT = 5  # second
 
 # private module function
 
-def httpRequest(session, request_method, url, post_data = None, files = None, timeout = 0):
+
+def httpRequest(session, request_method, url, post_data=None, files=None, timeout=0):
     # GET
     if request_method == 'GET':
-        return session.get(url, verify = False).text
+        return session.get(url, verify=False).text
 
     # POST:
     if files is None and timeout != 0:
-        return session.post(url, post_data, verify = False, timeout = timeout).text
+        return session.post(url, post_data, verify=False, timeout=timeout).text
     elif files is None:
-        return session.post(url, post_data, verify = False).text
+        return session.post(url, post_data, verify=False).text
     else:
-        return session.post(url, post_data, files = files, verify = False).text
+        return session.post(url, post_data, files=files, verify=False).text
+
 
 def parseIds(id_str):
     if '-' in id_str:
@@ -689,11 +752,14 @@ def parseIds(id_str):
         ids = []
     return ids
 
-def showStatus(raw_response, first_row, ignore_first = True):
+
+def showStatus(raw_response, first_row, ignore_first=True):
     printTable(first_row, parseStatus(raw_response, ignore_first))
 
+
 def parseStatus(raw_response, ignore_first):
-    string = regex.search('aDataSet = (.*)var aColumns', raw_response.replace('\n', '')).group(1)
+    string = regex.search('aDataSet = (.*)var aColumns',
+                          raw_response.replace('\n', '')).group(1)
     # swap single quote and double quote because jQuery format is not compatiblewith JSON
     string = string.replace("'", "`").replace('"', "'").replace("`", '"')
     string = string.rstrip().rstrip(';')
@@ -701,6 +767,8 @@ def parseStatus(raw_response, ignore_first):
     return [i[1 if ignore_first else 0:] for i in obj]
 
 # NOTE: The context of tds may be longer than th
+
+
 def printTable(th, tds):
     padding = len(max(th, key=len)) + 1
     row_format = ("{:<%d}" % padding) * (len(th))
@@ -709,6 +777,7 @@ def printTable(th, tds):
         if len(row) == 0:
             continue
         print(row_format.format(*row))
+
 
 def printDashboard(raw_response):
     html = BeautifulSoup(raw_response, 'html.parser')
@@ -721,7 +790,7 @@ def printDashboard(raw_response):
         elif len(cols) == 2:
             (key, val) = (cols[0], cols[1])
             print(key.get_text(), end=': ')
-            if val.input is not None: # print pre-fill value
+            if val.input is not None:  # print pre-fill value
                 print(val.input['value'])
             else:
                 print(val.get_text().replace('\n', ''))
