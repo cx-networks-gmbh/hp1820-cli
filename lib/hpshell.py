@@ -51,6 +51,10 @@ class Prompt(Cmd):
         """Show mac address table."""
         cli.showMacTable()
 
+    def do_showSpanningTree(self, args):
+        """Show Spanning Tree settings."""
+        cli.showSpanningTreeStatus()
+
     def do_setinfo(self, args):
         """Set switch name, Location, contact."""
         cli.setSystemInfo(input("Switch Name: "), input(

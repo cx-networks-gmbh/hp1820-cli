@@ -130,6 +130,13 @@ class Cli:
     def showDashboard(self):
         printDashboard(self._httpGet('dashboard'))
 
+    def showSpanningTreeStatus(self):
+        first_row = ['Int', 'Port Id',
+                     'Role', 'State', 'Cost', 'Hello Time', 'Point-To-Point Mac', 'Edge']
+        showSpanningTreeStatus(self._httpGet('show_stp_status'),
+                               first_row, ignore_first=False)
+
+    # Set functions
     def setVlanName(self, vlan_id, name):
         post_data = {
             'vlan': vlan_id,
@@ -719,7 +726,8 @@ URLS = {
     'reboot': '/htdocs/lua/ajax/sys_reset_ajax.lua?reset=1',
     'loop_protectiona': '/htdocs/pages/switching/loop_config.lsp',
     'loop_protectionb': '/htdocs/pages/switching/loop_config_modal.lsp',
-    'set_mgmt_vlan': '/htdocs/pages/base/network_ipv4_cfg.lsp'
+    'set_mgmt_vlan': '/htdocs/pages/base/network_ipv4_cfg.lsp',
+    'show_stp_status': '/htdocs/pages/switching/stp_cfg_status.lsp'
 }
 
 PROTOCOL_DELIMETER = "://"
@@ -754,6 +762,11 @@ def parseIds(id_str):
 
 
 def showStatus(raw_response, first_row, ignore_first=True):
+    printTable(first_row, parseStatus(raw_response, ignore_first))
+
+
+def showSpanningTreeStatus(raw_response, first_row, ignore_first=True):
+    printDashboard(raw_response)
     printTable(first_row, parseStatus(raw_response, ignore_first))
 
 
