@@ -136,6 +136,13 @@ class Cli:
         showSpanningTreeStatus(self._httpGet('show_stp_status'),
                                first_row, ignore_first=False)
 
+    def showLLDPRemotes(self):
+        first_row = ['Int', 'Remote Id', 'Chassis Id', 'Port Id', 'Port Desc', 'System Name', 'Capabilities Supported',
+                     'Capabilities Enabled']
+
+        showLLDPRemotest(self._httpGet('show_lldp_remotes'),
+                         first_row, ignore_first=False)
+
     # Set functions
     def setVlanName(self, vlan_id, name):
         post_data = {
@@ -727,7 +734,8 @@ URLS = {
     'loop_protectiona': '/htdocs/pages/switching/loop_config.lsp',
     'loop_protectionb': '/htdocs/pages/switching/loop_config_modal.lsp',
     'set_mgmt_vlan': '/htdocs/pages/base/network_ipv4_cfg.lsp',
-    'show_stp_status': '/htdocs/pages/switching/stp_cfg_status.lsp'
+    'show_stp_status': '/htdocs/pages/switching/stp_cfg_status.lsp',
+    'show_lldp_remotes': '/htdocs/pages/switching/lldp_remote.lsp'
 }
 
 PROTOCOL_DELIMETER = "://"
@@ -767,6 +775,10 @@ def showStatus(raw_response, first_row, ignore_first=True):
 
 def showSpanningTreeStatus(raw_response, first_row, ignore_first=True):
     printDashboard(raw_response)
+    printTable(first_row, parseStatus(raw_response, ignore_first))
+
+
+def showLLDPRemotest(raw_response, first_row, ignore_first=True):
     printTable(first_row, parseStatus(raw_response, ignore_first))
 
 

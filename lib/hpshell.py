@@ -55,6 +55,10 @@ class Prompt(Cmd):
         """Show Spanning Tree settings."""
         cli.showSpanningTreeStatus()
 
+    def do_showLLDPRemotes(self, args):
+        """Show LLDP remote devices."""
+        cli.showLLDPRemotes()
+
     def do_setinfo(self, args):
         """Set switch name, Location, contact."""
         cli.setSystemInfo(input("Switch Name: "), input(
