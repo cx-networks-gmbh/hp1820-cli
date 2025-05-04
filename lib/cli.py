@@ -133,8 +133,8 @@ class Cli:
     def showSpanningTreeStatus(self):
         first_row = ['Int', 'Port Id',
                      'Role', 'State', 'Cost', 'Hello Time', 'Point-To-Point Mac', 'Edge']
-        showSpanningTreeStatus(self._httpGet('show_stp_status'),
-                               first_row, ignore_first=False)
+        printSpanningTreeStatus(self._httpGet('show_stp_status'),
+                                first_row, ignore_first=False)
 
     def showLLDPRemotes(self):
         first_row = ['Int', 'Remote Id', 'Chassis Id', 'Port Id', 'Port Desc', 'System Name', 'Capabilities Supported',
@@ -773,7 +773,7 @@ def showStatus(raw_response, first_row, ignore_first=True):
     printTable(first_row, parseStatus(raw_response, ignore_first))
 
 
-def showSpanningTreeStatus(raw_response, first_row, ignore_first=True):
+def printSpanningTreeStatus(raw_response, first_row, ignore_first=True):
     printDashboard(raw_response)
     printTable(first_row, parseStatus(raw_response, ignore_first))
 
