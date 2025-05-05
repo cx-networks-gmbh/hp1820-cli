@@ -3,4 +3,3 @@ __pycache__
 hp-cli
 hp-cli_linux
 *.private*
-*output*

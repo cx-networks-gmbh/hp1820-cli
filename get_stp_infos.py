@@ -4,8 +4,18 @@ from lib.cli import Cli
 
 # List of switch IPs
 switch_ips = [
-    "192.168.1.1",
-    "192.168.1.2"
+    "192.168.1.211",
+    "192.168.1.212",
+    "192.168.1.221",
+    "192.168.1.222",
+    "192.168.1.231",
+    "192.168.1.232",
+    "192.168.1.241",
+    "192.168.1.242",
+    "192.168.1.21",
+    "192.168.1.22",
+    "192.168.1.11",
+    "192.168.1.12"
 ]
 
 # Folder to save the output files
@@ -14,7 +24,7 @@ os.makedirs(output_folder, exist_ok=True)
 
 # Credentials for the switches
 username = "admin"
-password = ""
+password = "PRG0815$"
 
 
 def get_spanning_tree_info(ip):
@@ -25,8 +35,10 @@ def get_spanning_tree_info(ip):
     if cli.login(username, password):
         tem = sys.stdout
         file_path = os.path.join(output_folder, f"{ip}.txt")
-        sys.stdout = f = open(file_path, 'a')
-        stp_info = cli.showSpanningTreeStatus()
+        sys.stdout = f = open(file_path, 'w')
+        cli.showSpanningTreeStatus()
+        print("\n\nLLDP:")
+        cli.showLLDPRemotes()
         sys.stdout = tem
         f.close()
         cli.logout()

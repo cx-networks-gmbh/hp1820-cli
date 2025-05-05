@@ -1,0 +1,57 @@
+Spanning Tree: Enabled
+Protocol Version: RSTP (802.1w)
+Switch MAC Address: 32768:70:10:6F:70:E5:40
+Switch Priority: 32768
+Max Age: 20
+Forward Delay: 15
+Root MAC Address: 4096:38:63:BB:F1:D1:80
+Root Priority: 4096
+Root Path Cost: 40000
+Root Port: 26
+Topology Change Count: 10
+Time Since Last Change: 0d:13:40:21
+Root Guarded Interfaces: 
+TCN Guarded Interfaces: 
+BPDU Protected Interfaces: 1-26,TRK1-TRK8
+BPDU Filtered Interfaces: 
+Int                Port Id            Role               State              Cost               Hello Time         Point-To-Point Mac Edge               
+1                  128:001            Disabled           Disabled           0                  2                  False              Enabled            
+2                  128:002            Disabled           Disabled           0                  2                  False              Enabled            
+3                  128:003            Disabled           Disabled           0                  2                  False              Enabled            
+4                  128:004            Disabled           Disabled           0                  2                  False              Enabled            
+5                  128:005            Disabled           Disabled           0                  2                  False              Enabled            
+6                  128:006            Disabled           Disabled           0                  2                  False              Enabled            
+7                  128:007            Disabled           Disabled           0                  2                  False              Enabled            
+8                  128:008            Disabled           Disabled           0                  2                  False              Enabled            
+9                  128:009            Disabled           Disabled           0                  2                  False              Enabled            
+10                 128:00a            Disabled           Disabled           0                  2                  False              Enabled            
+11                 128:00b            Disabled           Disabled           0                  2                  False              Enabled            
+12                 128:00c            Disabled           Disabled           0                  2                  False              Enabled            
+13                 128:00d            Disabled           Disabled           0                  2                  False              Enabled            
+14                 128:00e            Disabled           Disabled           0                  2                  False              Enabled            
+15                 128:00f            Disabled           Disabled           0                  2                  False              Enabled            
+16                 128:010            Disabled           Disabled           0                  2                  False              Enabled            
+17                 128:011            Disabled           Disabled           0                  2                  False              Enabled            
+18                 128:012            Disabled           Disabled           0                  2                  False              Enabled            
+19                 128:013            Disabled           Disabled           0                  2                  False              Enabled            
+20                 128:014            Disabled           Disabled           0                  2                  False              Enabled            
+21                 128:015            Disabled           Disabled           0                  2                  False              Enabled            
+22                 128:016            Disabled           Disabled           0                  2                  False              Enabled            
+23                 128:017            Disabled           Disabled           0                  2                  False              Enabled            
+24                 128:018            Disabled           Disabled           0                  2                  False              Enabled            
+25                 128:019            Designated         Forwarding         20000              2                  True               Enabled            
+26                 128:01a            Root               Forwarding         20000              2                  True               Enabled            
+TRK1               64:036             Disabled           Disabled           0                  2                  True               Enabled            
+TRK2               64:037             Disabled           Disabled           0                  2                  True               Enabled            
+TRK3               64:038             Disabled           Disabled           0                  2                  True               Enabled            
+TRK4               64:039             Disabled           Disabled           0                  2                  True               Enabled            
+TRK5               64:03a             Disabled           Disabled           0                  2                  True               Enabled            
+TRK6               64:03b             Disabled           Disabled           0                  2                  True               Enabled            
+TRK7               64:03c             Disabled           Disabled           0                  2                  True               Enabled            
+TRK8               64:03d             Disabled           Disabled           0                  2                  True               Enabled            
+
+
+LLDP:
+Int                    Remote Id              Chassis Id             Port Id                Port Desc              System Name            Capabilities Supported Capabilities Enabled   
+25                     4                      8C:DC:D4:F8:7A:A0      8C:DC:D4:F8:7A:A2                             sw02.dc03.lan          bridge                 bridge                 
+26                     2                      70:10:6F:71:DE:20      70:10:6F:71:DE:22                             sw02.dc04.lan          bridge                 bridge                 
