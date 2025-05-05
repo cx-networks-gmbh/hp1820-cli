@@ -8,8 +8,8 @@ Root MAC Address: 4096:38:63:BB:F1:D1:80
 Root Priority: 4096
 Root Path Cost: 60000
 Root Port: 25
-Topology Change Count: 2
-Time Since Last Change: 1d:14:13:58
+Topology Change Count: 4
+Time Since Last Change: 0d:00:01:55
 Root Guarded Interfaces: 17
 TCN Guarded Interfaces: 
 BPDU Protected Interfaces: 1-16,18-26,TRK1-TRK8
@@ -38,7 +38,7 @@ Int                Port Id            Role               State              Cost
 21                 128:015            Disabled           Disabled           0                  2                  False              Enabled            
 22                 128:016            Disabled           Disabled           0                  2                  False              Enabled            
 23                 128:017            Disabled           Disabled           0                  2                  False              Enabled            
-24                 128:018            Disabled           Disabled           0                  2                  False              Enabled            
+24                 128:018            Designated         Forwarding         20000              2                  True               Enabled            
 25                 128:019            Root               Forwarding         20000              2                  True               Enabled            
 26                 128:01a            Alternate          Discarding         20000              2                  True               Enabled            
 TRK1               64:036             Disabled           Disabled           0                  2                  True               Enabled            
@@ -54,5 +54,6 @@ TRK8               64:03d             Disabled           Disabled           0   
 LLDP:
 Int                    Remote Id              Chassis Id             Port Id                Port Desc              System Name            Capabilities Supported Capabilities Enabled   
 17                     5                      18:E8:29:99:BF:3F      18:E8:29:99:BF:3F      eth0                   ap01dc01lan            bridge, WLAN access point, router, station onlybridge, WLAN access point, router
+24                     6                      8C:DC:D4:F3:A5:80      8C:DC:D4:F3:A5:82                             sw02.dc01.lan          bridge                 bridge                 
 25                     4                      00:FD:45:C9:B6:A0      00:FD:45:C9:B6:A2                             sw01.dc02.lan          bridge                 bridge                 
 26                     2                      8C:DC:D4:F8:AA:00      8C:DC:D4:F8:AA:02                             sw01.dc03.lan          bridge                 bridge                 

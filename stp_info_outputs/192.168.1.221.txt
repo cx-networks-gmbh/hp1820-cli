@@ -8,8 +8,8 @@ Root MAC Address: 4096:38:63:BB:F1:D1:80
 Root Priority: 4096
 Root Path Cost: 40000
 Root Port: 26
-Topology Change Count: 4
-Time Since Last Change: 0d:13:40:04
+Topology Change Count: 7
+Time Since Last Change: 0d:00:02:00
 Root Guarded Interfaces: 17-18
 TCN Guarded Interfaces: 
 BPDU Protected Interfaces: 1-16,19-26,TRK1-TRK8

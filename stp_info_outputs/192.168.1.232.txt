@@ -7,9 +7,9 @@ Forward Delay: 15
 Root MAC Address: 4096:38:63:BB:F1:D1:80
 Root Priority: 4096
 Root Path Cost: 60000
-Root Port: 26
-Topology Change Count: 7
-Time Since Last Change: 0d:13:40:10
+Root Port: 24
+Topology Change Count: 10
+Time Since Last Change: 0d:00:02:05
 Root Guarded Interfaces: 
 TCN Guarded Interfaces: 
 BPDU Protected Interfaces: 1-26,TRK1-TRK8
@@ -38,9 +38,9 @@ Int                Port Id            Role               State              Cost
 21                 128:015            Disabled           Disabled           0                  2                  False              Enabled            
 22                 128:016            Disabled           Disabled           0                  2                  False              Enabled            
 23                 128:017            Disabled           Disabled           0                  2                  False              Enabled            
-24                 128:018            Disabled           Disabled           0                  2                  False              Enabled            
+24                 128:018            Root               Forwarding         20000              2                  True               Enabled            
 25                 128:019            Designated         Forwarding         20000              2                  True               Enabled            
-26                 128:01a            Root               Forwarding         20000              2                  True               Enabled            
+26                 128:01a            Alternate          Discarding         20000              2                  True               Enabled            
 TRK1               64:036             Disabled           Disabled           0                  2                  True               Enabled            
 TRK2               64:037             Disabled           Disabled           0                  2                  True               Enabled            
 TRK3               64:038             Disabled           Disabled           0                  2                  True               Enabled            
@@ -53,5 +53,6 @@ TRK8               64:03d             Disabled           Disabled           0   
 
 LLDP:
 Int                    Remote Id              Chassis Id             Port Id                Port Desc              System Name            Capabilities Supported Capabilities Enabled   
+24                     4                      8C:DC:D4:F8:AA:00      8C:DC:D4:F8:AA:02                             sw01.dc03.lan          bridge                 bridge                 
 25                     3                      8C:DC:D4:F3:A5:80      8C:DC:D4:F3:A5:82                             sw02.dc01.lan          bridge                 bridge                 
 26                     1                      70:10:6F:70:E5:40      70:10:6F:70:E5:42                             sw02.foh.lan           bridge                 bridge                 

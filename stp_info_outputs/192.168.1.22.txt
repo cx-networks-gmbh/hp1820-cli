@@ -9,7 +9,7 @@ Root Priority: 4096
 Root Path Cost: 40000
 Root Port: 26
 Topology Change Count: 8
-Time Since Last Change: 0d:13:40:17
+Time Since Last Change: 0d:17:10:29
 Root Guarded Interfaces: 
 TCN Guarded Interfaces: 
 BPDU Protected Interfaces: 1-26,TRK1-TRK8
